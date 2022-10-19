@@ -8,15 +8,15 @@ const morgan = require('morgan');
 dotenv.config();
 
 const sauceRoutes = require('./routes/sauce');
-const userRoutes = require('./routes/user');
+    const userRoutes = require('./routes/user');
 
-const app = express();
+    const app = express();
 
-//connexion à la base de données
-mongoose.connect('mongodb+srv://' + process.env.DB_USER + ':' + process.env.DB_PASSWORD + '@cluster0.bsx4exk.mongodb.net/' + process.env.DB_NAME + '?retryWrites=true&w=majority', {
-        useNewUrlParser: true,
-        useUnifiedTopology: true
-    })
+    //connexion à la base de données
+    mongoose.connect('mongodb+srv://' + process.env.DB_USER + ':' + process.env.DB_PASSWORD + '@cluster0.bsx4exk.mongodb.net/' + process.env.DB_NAME + '?retryWrites=true&w=majority', {
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+        })
     .then(() => console.log('Connexion à MongoDB réussie !'))
     .catch(() => console.log('Connexion à MongoDB échouée !'));
 
