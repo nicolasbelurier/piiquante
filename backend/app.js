@@ -8,19 +8,19 @@ const morgan = require('morgan');
 dotenv.config();
 
 const sauceRoutes = require('./routes/sauce');
-    const userRoutes = require('./routes/user');
+const userRoutes = require('./routes/user');
 
-    const app = express();
+const app = express();
 
-    //connexion à la base de données
-    mongoose.connect('mongodb+srv://' + process.env.DB_USER + ':' + process.env.DB_PASSWORD + '@cluster0.bsx4exk.mongodb.net/' + process.env.DB_NAME + '?retryWrites=true&w=majority', {
-            useNewUrlParser: true,
-            useUnifiedTopology: true
-        })
-    .then(() => console.log('Connexion à MongoDB réussie !'))
-    .catch(() => console.log('Connexion à MongoDB échouée !'));
+// Connexion à la base de données
+mongoose.connect('mongodb+srv://' + process.env.DB_USER + ':' + process.env.DB_PASSWORD + '@cluster0.bsx4exk.mongodb.net/' + process.env.DB_NAME + '?retryWrites=true&w=majority', {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+    })
+.then(() => console.log('Connected to MongoDB.'))
+.catch(() => console.log('MongoDB connection failed.'));
 
-// ajout des headers pour les requêtes
+// Ajout des headers pour les requêtes
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization');
@@ -28,13 +28,13 @@ app.use((req, res, next) => {
     next();
 });
 
-//Utilisé pour parser le corps des réponses en JSON
+// Utilisé pour parser le corps des réponses en JSON
 app.use(express.json());
 
-// ajout de morgan pour le log des requetes HTTP
+// Ajout de morgan pour le log des requetes HTTP
 app.use(morgan('combined'));
 
-// routes
+// Routes
 app.use(helmet({crossOriginResourcePolicy: false,}));
 app.use('/api/sauces', sauceRoutes);
 app.use('/images', express.static(path.join(__dirname, 'images')));

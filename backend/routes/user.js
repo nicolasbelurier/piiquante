@@ -3,7 +3,7 @@ const router = express.Router();
 
 const userCtrl = require('../controllers/user');
 
-// création des différentes routes de l'api en leur précisant dans l'ordre les middlewares
+// Création des différentes routes de l'api en précisant l'ordre des middlewares
 router.post('/signup', userCtrl.signup);
 router.post('/login', userCtrl.login);
 

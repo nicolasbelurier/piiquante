@@ -1,11 +1,9 @@
 const Sauce = require('../models/sauce');
 const fs = require('fs');
 
-//creation d'une sauce par un utilisateur
+// Création d'une sauce par un utilisateur
 exports.createSauce = (req, res) => {
     const sauceObject = JSON.parse(req.body.sauce);
-    console.log(sauceObject);
-    delete sauceObject._id;
     console.log(req.file);
     const sauce = new Sauce({
         ...sauceObject,
@@ -16,11 +14,11 @@ exports.createSauce = (req, res) => {
         usersDisliked: []
     });
     sauce.save()
-        .then(() => res.status(201).json({ message: 'Sauce enregistrée !' }))
+        .then(() => res.status(201).json({ message: 'Sauce saved.' }))
         .catch(error => res.status(400).json({ error }));
 };
 
-//renvoi toutes les sauces présente dans la base de donnée
+// Renvoi toutes les sauces présentent dans la base de données
 exports.getAllSauce = (req, res) => {
     Sauce.find()
         .then(sauces => {
@@ -31,7 +29,7 @@ exports.getAllSauce = (req, res) => {
         });
 };
 
-//renvoi une sauce présente dans la base de donnée selon l'ID de la sauce
+// Renvoi une sauce présente dans la base de donnée selon l'ID de la sauce
 exports.getOneSauce = (req, res) => {
     Sauce.findOne({ _id: req.params.id })
         .then(sauce => {
@@ -40,7 +38,7 @@ exports.getOneSauce = (req, res) => {
         .catch(error => res.status(404).json({ error }));
 };
 
-//modification de la sauce
+// Modification de la sauce
 exports.updateSauce = (req, res) => {
 
     const sauceObject = req.file ? {
@@ -49,11 +47,11 @@ exports.updateSauce = (req, res) => {
     } : {...req.body }
 
     Sauce.updateOne({ _id: req.params.id }, {...sauceObject, _id: req.params.id })
-        .then(res.status(200).json({ message: "Sauce modifiée" }))
+        .then(res.status(200).json({ message: "Sauce modified." }))
         .catch((error) => res.status(400).json({ error }))
 };
 
-//suppression d'une sauce
+// Suppression d'une sauce
 exports.deleteSauce = (req, res) => {
     Sauce.findOne({ _id: req.params.id })
         .then((sauce) => {
@@ -61,7 +59,7 @@ exports.deleteSauce = (req, res) => {
             const fileName = sauce.imageUrl.split('/images/')[1];
             fs.unlink(`images/${fileName}`, () => {
                 Sauce.deleteOne({ _id: req.params.id })
-                    .then(() => res.status(200).json({ message: "La sauce a été supprimée !" }))
+                    .then(() => res.status(200).json({ message: "Sauce deleted." }))
                     .catch((error) => res.status(400).json({ error }));
             });
 
@@ -69,42 +67,42 @@ exports.deleteSauce = (req, res) => {
         .catch((error) => res.status(400).json({ error }))
 };
 
-//gestion des likes
+// Gestion des likes
 exports.likeSauce = (req, res) => {
     const userId = req.body.userId;
     const sauceId = req.params.id;
     const likeState = req.body.like;
 
     switch (likeState) {
-        //si like=1 on incrémente l'attribut likes de la sauce et on ajoute l'id de l'utilisateur dans le tableau usersLiked
+        // Si like=1 on incrémente l'attribut likes de la sauce et on ajoute l'id de l'utilisateur dans le tableau usersLiked
         case 1:
             Sauce.updateOne({ _id: sauceId }, { $inc: { likes: 1 }, $push: { usersLiked: userId } })
-                .then(() => res.status(200).json({ message: "Like ajouté à la sauce" }))
+                .then(() => res.status(200).json({ message: "Sauce liked." }))
                 .catch((error) => res.status(400).json({ error }));
             break;
-            //si like=0 alors on étudie les deux tableaux usersLiked et usersDisliked et on mets à jour les attributs likes et dislikes ainsi que les tableaux eux meme selon la présence de l'userId dans l'un des deux
+            // Si like=0 alors on check les deux tableaux usersLiked et usersDisliked et on màj les attributs likes et dislikes ainsi que les tableaux eux mêmes selon la présence de l'userId dans l'un des deux
         case 0:
-            //retourne le tableau correspondant a sauceId
+            // Retourne le tableau correspondant a sauceId
             Sauce.findOne({ _id: sauceId })
                 .then(sauce => {
                     if (sauce.usersLiked.includes(userId)) {
-                        //décrémente l'attribut likes de la sauce et supprime l'userId du tableau usersLiked
+                        // Décrémente l'attribut likes de la sauce et supprime l'userId du tableau usersLiked
                         Sauce.updateOne({ _id: sauceId }, { $inc: { likes: -1 }, $pull: { usersLiked: userId } })
-                            .then(() => res.status(200).json({ message: "Vous avez enlever votre like !" }))
+                            .then(() => res.status(200).json({ message: "Sauce unliked." }))
                             .catch(error => res.status(400).json({ error }));
                     } else if (sauce.usersDisliked.includes(userId)) {
-                        //décrémente l'attribut dislikes de la sauce et supprime l'userId du tableau usersDisliked
+                        // Décrémente l'attribut dislikes de la sauce et supprime l'userId du tableau usersDisliked
                         Sauce.updateOne({ _id: sauceId }, { $inc: { dislikes: -1 }, $pull: { usersDisliked: userId } })
-                            .then(() => res.status(200).json({ message: "Vous avez enlever votre dislike !" }))
+                            .then(() => res.status(200).json({ message: "Sauce undisliked." }))
                             .catch(error => res.status(400).json({ error }));
                     }
                 })
                 .catch(error => res.status(400).json({ error }));
             break;
-            //si like=-1 on incrémente l'attribut dislikes de la sauce et on ajoute l'id de l'utilisateur dans le tableau usersDisliked
+            // Si like=-1 on incrémente l'attribut dislikes de la sauce et on ajoute l'id de l'utilisateur dans le tableau usersDisliked
         case -1:
             Sauce.updateOne({ _id: sauceId }, { $inc: { dislikes: 1 }, $push: { usersDisliked: userId } })
-                .then(() => res.status(200).json({ message: "dislike ajouté à la sauce" }))
+                .then(() => res.status(200).json({ message: "Sauce disliked." }))
                 .catch((error) => res.status(400).json({ error }));
             break;
     }
